@@ -18,6 +18,6 @@ router.post('/test', async (req, res, next) => {
 })
 
 //gets next best product from a specific product
-router.post('/nbp', searchController.next_best_product)
+//router.post('/nbp', searchController.next_best_product)
 
 module.exports = router

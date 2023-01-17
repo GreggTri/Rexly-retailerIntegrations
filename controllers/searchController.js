@@ -22,8 +22,28 @@ exports.search_retailers = async (req, res, next) => {
     let query = req.body.query
     let maxPrice;
     let color;
-    //TODO: create price finder and create color finder and then detokenize query
-    
+    let listOfColors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'gray', 'black', 'white']
+    let listOfFillerWords = ['i', 'looking', 'for', 'need', 'want', 'you', 'got', 'do', 'what', 'any', 'really', 'a', '\'m']
+
+    //this is to make it so the search via walmart is better
+    for(word in query){
+        if (listOfColors.includes(word)){
+            color = word[0].toUpperCase() + word.slice(1);
+            print("this is color", color)
+        }
+        //get's rid of words that makes search more potent and filled with less useless words
+        else if(listOfFillerWords.includes(word)){
+            query = query.filter(x => x !== word)
+        }
+        //we want to take a number if it exists in the query message and set it as the budget
+        //this has some obvious issues such as if someone is looking for a 1tb hard drive.
+        //this will set the budget at one dollar and not return anything but works for most other cases
+        if(!Number.isNaN(Number(word))){
+            maxPrice = Number(word)
+        }
+    }
+
+
     var bestItems = [];
     let a = 1;
     query = query.join(' ')
@@ -35,9 +55,9 @@ exports.search_retailers = async (req, res, next) => {
         }
         
         var facetColor = ''
-        // if(request.color){
-        //     facetColor = `&facet.filter=color:${request.color}`
-        // }
+        if(color){
+            facetColor = `&facet.filter=color:${color}`
+        }
 
         //makes a loop of subsequent api calls till 25 best items are found or no more items left to choose from in API
         do{
@@ -54,7 +74,7 @@ exports.search_retailers = async (req, res, next) => {
                     console.log(`Element at index ${i} is undefined`)
 
                 }
-                if(response_WAL.items[i].salePrice <= maxPrice || !maxPrice){
+                if(Number(response_WAL.items[i].salePrice) <= maxPrice || !maxPrice){
                     if(response_WAL.items[i].numReviews){
                         const duplicateItemCheck = bestItems.find(item => item.itemId === response_WAL.items[i].itemId)
                         if(!duplicateItemCheck){
@@ -130,6 +150,6 @@ exports.search_retailers = async (req, res, next) => {
 }
 
 //ENDPOINT: http://locahost:5000/api/v1/nbp
-exports.next_best_product = async (req, res, next) => {
-    //add actual request
-}
+// exports.next_best_product = async (req, res, next) => {
+//     //add actual request
+// }
