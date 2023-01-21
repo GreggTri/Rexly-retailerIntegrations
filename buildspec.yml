@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 16
+    commands:
+    - echo Executing Install Phase
+
+  pre_build:
+    commands:
+      - echo Executing Pre_Build Phase
+      - npm install
+  build:
+    commands:
+    - echo Executing Build Phase on `date`
+artifacts:
+  files:
+    - '**/*'
