@@ -33,7 +33,7 @@ exports.search_retailers = async (req, res, next) => {
     let maxPrice;
     let color;
     let listOfColors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'gray', 'black', 'white']
-    let listOfFillerWords = ['i', 'looking', 'for', 'need', 'want', 'you', 'got', 'do', 'what', 'any', 'really', 'a', '\'m', 'around']
+    let listOfFillerWords = ['i', 'm' ,'looking', 'for', 'need', 'want', 'you', 'got', 'do', 'what', 'any', 'really', 'a', '\'m', 'around']
 
     //this is to make it so the search via walmart is better
     for(word of query){
@@ -51,8 +51,12 @@ exports.search_retailers = async (req, res, next) => {
             maxPrice = Number(word)
         }
     }
-
-
+    
+    //this is to make sure that if the entire query is filler words, it doesn't commit the search
+    if(query.length === 0){
+        error = new Error("No query set")
+        return res.status(400).json(error.message)
+    }
     var bestItems = [];
     let a = 1;
     query = query.join(' ')
