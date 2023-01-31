@@ -20,16 +20,25 @@ exports.search_retailers = async (req, res, next) => {
      */
 
     let query = req.body.query
+
+    if(!Array.isArray(query)){
+        error = new Error("Improperly formed query")
+        return res.status(400).json(error.message)
+    }
+
+    if(query.length === 0){
+        error = new Error("No query set")
+        return res.status(400).json(error.message)
+    }
     let maxPrice;
     let color;
     let listOfColors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'gray', 'black', 'white']
-    let listOfFillerWords = ['i', 'looking', 'for', 'need', 'want', 'you', 'got', 'do', 'what', 'any', 'really', 'a', '\'m']
+    let listOfFillerWords = ['i', 'm' ,'looking', 'for', 'need', 'want', 'you', 'got', 'do', 'what', 'any', 'really', 'a', '\'m', 'around']
 
     //this is to make it so the search via walmart is better
-    for(word in query){
+    for(word of query){
         if (listOfColors.includes(word)){
             color = word[0].toUpperCase() + word.slice(1);
-            print("this is color", color)
         }
         //get's rid of words that makes search more potent and filled with less useless words
         else if(listOfFillerWords.includes(word)){
@@ -42,18 +51,22 @@ exports.search_retailers = async (req, res, next) => {
             maxPrice = Number(word)
         }
     }
-
-
+    
+    //this is to make sure that if the entire query is filler words, it doesn't commit the search
+    if(query.length === 0){
+        error = new Error("No query set")
+        return res.status(400).json(error.message)
+    }
     var bestItems = [];
     let a = 1;
     query = query.join(' ')
 
+    // console.log(query);
+    // console.log(color)
+    // console.log(maxPrice);
     try{
-        if(!query){
-            console.log("[Error 400]: Search query not set. Current query is: " + query);
-            res.status(404).json(`[Error 400]: Search query not set. Current query is: ${query}`)
-        }
         
+
         var facetColor = ''
         if(color){
             facetColor = `&facet.filter=color:${color}`
@@ -126,7 +139,7 @@ exports.search_retailers = async (req, res, next) => {
             a += 25;
         }while(a < totalCount && bestItems.length < 13 && a < 200)
 
-        console.log("Searched Through a total of " + a + " items to find " + bestItems.length + " Best Items");
+        //console.log("Searched Through a total of " + a + " items to find " + bestItems.length + " Best Items");
         
         
         //sort best items from greatest to worst

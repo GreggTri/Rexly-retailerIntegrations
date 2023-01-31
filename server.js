@@ -1,7 +1,6 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const mongoose = require('mongoose')
 const logger = require('morgan')
 require('dotenv').config()
 
@@ -25,6 +24,11 @@ app.use((req, res, next) =>{
 
 //routes
 app.use('/api/v1/', searchRoute)
+//For ELB healthchecks
+app.get('/', (req, res, next) => {
+
+  res.status(200).json('ok')
+})
 
 //error handling
 app.use((req, res, next) =>{
